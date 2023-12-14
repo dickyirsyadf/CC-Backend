@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  roleId Int    @id @default(autoincrement())
+  role   String
+  users  User[]
+}
+
+model User {
+  userId       String        @id @map("uuid") // assuming UUID from frontend
+  roleId       Int           @map("role_id")
+  role         Role          @relation(fields: [roleId], references: [roleId])
+  userData     UserData?
+  organization Organization?
+  volunteer    Volunteer?
+}
+
+model UserData {
+  userId            String @id @map("user_id")
+  name              String
+  address           String
+  birthDate         String @map("birth_date")
+  jobs              String
+  highest_edu       String @map("highest_edu")
+  type_organization String @map("type_organization")
+  interest          String
+  phone             String
+  user              User   @relation(fields: [userId], references: [userId])
+}
+
+model Organization {
+  userId  String @id @map("user_id")
+  name    String
+  address String
+  eventId Int    @map("event_id")
+  event   Event  @relation(fields: [eventId], references: [eventId])
+  user    User   @relation(fields: [userId], references: [userId])
+}
+
+model Category {
+  categoryId Int     @id @default(autoincrement())
+  category   String
+  events     Event[]
+}
+
+model Event {
+  eventId       Int            @id @default(autoincrement())
+  name          String
+  start         DateTime
+  end           DateTime
+  location      String
+  type          String
+  description   String
+  categoryId    Int            @map("category_id")
+  registerDate  DateTime       @default(now()) @map("register_date")
+  category      Category       @relation(fields: [categoryId], references: [categoryId])
+  organizations Organization[]
+  volunteers    Volunteer[]
+  qrcodes       QRCode[]
+}
+
+model Volunteer {
+  volunteerId Int    @id @default(autoincrement())
+  userId      String @unique @map("user_id")
+  eventId     Int    @map("event_id")
+  status      String
+  user        User   @relation(fields: [userId], references: [userId])
+  event       Event  @relation(fields: [eventId], references: [eventId])
+}
+
+model QRCode {
+  qrhash  Int      @id @default(autoincrement())
+  date    DateTime
+  eventId Int      @map("event_id")
+  event   Event    @relation(fields: [eventId], references: [eventId])
+}
