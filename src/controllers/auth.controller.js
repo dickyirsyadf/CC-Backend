@@ -3,9 +3,10 @@ const prisma = require("../config/db");
 
 const register = async (req, res) => {
   // harusnya bisa nangkap role tapi gua bingung caranya gimana
+  // role dikasih haidar pas klik register biar langsung input ke tabel user, 
+  // jadi kita gausah pusing nyari role, klik auth juga auto masuk sih.
   // const register = async (req, res, role) => {
-
-  const { userId, roleId } = req.body;
+  const { userId } = req.body;
 
   try {
     // * Cek apakah pengguna dengan UUID tersebut sudah terdaftar
@@ -31,7 +32,7 @@ const register = async (req, res) => {
     const createdUser = await prisma.user.create({
       data: {
         userId,
-        roleId,
+        role,
         // roleId: roleInfo.roleId,
       },
     });
@@ -49,7 +50,7 @@ const login = async (req, res, role) => {
   const { userId } = req.body;
 
   try {
-    const entity = role === "user" ? "user" : "organization";
+    const entity = role === "User" ? "User" : "Organization";
 
     // Cari pengguna di PostgreSQL berdasarkan UUID
     const result = await prisma[entity].findUnique({
